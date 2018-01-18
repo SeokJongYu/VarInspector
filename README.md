@@ -1,4 +1,4 @@
-# Kepre
+# VarInspector
 
-This project aimed to construct an automated analysis system of epitope prediction.
-
+VarInspector is a bioinformatics NGS analysis platform which handles various genomics data.
+This system provides automated analysis pipelines by integrating with cluster
