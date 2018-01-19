@@ -1,0 +1,291 @@
+def _get_bwa_threads(wildcards):
+    return int(config["params_bwa_threads"])
+
+#Align reads with bwa mem algorithm
+rule bwa_mem_map:
+    input:
+        fastqs=expand("{{prefix}}_{reads}.fastq.gz", reads=["1", "2"]),
+        reference=config["references"]
+    output:
+        temp("{prefix,[^/]+}.sam")
+    params:
+        id="{prefix}"
+    log:
+        "log/{prefix}_bwa_mem_map.log"
+    threads: 8
+    shell:
+        "{config[tools][bwa]} mem -M "
+        r"-R '@RG\tID:Exome_{params.id}\t"
+        r"LB:Exome_{params.id}\tSM:Exome_{params.id}\tPL:{config[platform]}' "
+        "-t {threads} {input.reference} {input.fastqs} > {output} 2> {log} "
+
+#Run picard sorsam for sorting bam file according to the coordination
+rule picard_sortsam:
+    input:
+        "{prefix}.sam"
+    output:
+        bam=temp("{prefix,[^.]+}.bam"),
+        bai=temp("{prefix,[^.]+}.bai")
+    log:
+        "log/{prefix}.sortsam.log"
+    shell:
+        "java -Xmx16g -Djava.io.tmpdir={config[tmp_path]} "
+        "-XX:+UseConcMarkSweepGC -XX:ParallelGCThreads=4 "
+        "-jar {config[tools][picard]} SortSam "
+        "INPUT={input} "
+        "OUTPUT={output.bam} "
+        "VALIDATION_STRINGENCY=LENIENT "
+        "SORT_ORDER=coordinate "
+        "CREATE_INDEX=true >& {log}"
+
+#Marking PCR duplicates using picard MarkDuplicates
+rule picard_dedup:
+    input:
+        bam="{prefix}.bam"
+    output:
+        dedup=temp("{prefix}.marked.bam"),
+        bai=temp("{prefix}.marked.bai"),
+        metrics=temp("{prefix}.metrics")
+    log:
+        "log/{prefix}.dedup.log"
+    shell:
+        "java -Xmx16g -Djava.io.tmpdir={config[tmp_path]} "
+        "-XX:+UseConcMarkSweepGC -XX:ParallelGCThreads=4 "
+        "-jar {config[tools][picard]} MarkDuplicates "
+        "INPUT={input.bam} "
+        "OUTPUT={output.dedup} "
+        "METRICS_FILE={output.metrics} "
+        "CREATE_INDEX=true "
+        "VALIDATION_STRINGENCY=LENIENT  >& {log}"
+
+#Realigning bam files using *.realign.interval file with GATK IndelRealigner
+rule gatk_realign_bam:
+    input:
+        reference=config["references"],
+        bam="{prefix}.bam",
+        intervals="{prefix}.realign.intervals"
+    output:
+        bam=temp("{prefix}.realigned.bam"),
+        bai=temp("{prefix}.realigned.bai")
+    threads: 4
+    log:
+        "log/{prefix}.realign.log"
+    shell:
+        "java -XX:+UseConcMarkSweepGC -XX:ParallelGCThreads=4 -Xmx16g -jar {config[tools][gatk]} "
+        "-T IndelRealigner -R {input.reference} "
+        "-known {config[known_variants][mills]} "
+        "--disable_auto_index_creation_and_locking_when_reading_rods "
+        "-I {input.bam} -targetIntervals {input.intervals} "
+        "-o {output.bam} >& {log}"
+
+#Seeks regions for realign using GATK RealignerTargetCreator
+rule gatk_realign_info:
+    input:
+        reference=config["references"],
+        bam="{prefix}.bam"
+    output:
+        temp("{prefix}.realign.intervals")
+    log:
+        "log/{prefix}.realign_info.log"
+    threads: 8
+    shell:
+        "java -XX:+UseConcMarkSweepGC -XX:ParallelGCThreads=4 -Xmx16g -jar {config[tools][gatk]} "
+        "-T RealignerTargetCreator -R {input.reference} "
+        "-nt {threads} "
+        "-I {input.bam} "
+        "-known {config[known_variants][mills]} "
+        "--disable_auto_index_creation_and_locking_when_reading_rods "
+        "-o {output} >& {log}"
+
+#Run GATK PrintReads to apply base recalibration result to bam
+rule gatk_recalibrate_bam:
+    input:
+        reference=config["references"],
+        bam="{prefix}.bam",
+        grp="{prefix}.recal.grp"
+    output:
+        bam="{prefix,[^/]+}.recal.bam",
+        bai="{prefix,[^/]+}.recal.bai"
+    log:
+        "log/{prefix}.recalibrate.log"
+    threads: 8
+    shell:
+        "java -XX:+UseConcMarkSweepGC -XX:ParallelGCThreads=4 -Xmx16g -jar {config[tools][gatk]} "
+        "-T PrintReads -R {input.reference} "
+        "-nct {threads} "
+        "--disable_auto_index_creation_and_locking_when_reading_rods "
+        "-I {input.bam} -BQSR {input.grp} "
+        "-o {output.bam} >& {log}"
+
+#Run GATK BaseRecalibrator for recalibrating base quality recalibration
+rule gatk_recalibrate_info:
+    input:
+        reference=config["references"], 
+        bam="{prefix}.bam"
+    output:
+        temp("{prefix}.recal.grp")
+    log:
+        "log/{prefix}.recalibrate_info.log"
+    threads: 8
+    shell:
+        "java -XX:+UseConcMarkSweepGC -XX:ParallelGCThreads=4 -Xmx24g -jar {config[tools][gatk]} "
+        "-T BaseRecalibrator -R {input.reference} "
+        "-nct {threads} "
+        "-I {input.bam} -knownSites {config[known_variants][dbsnp]} "
+        "--disable_auto_index_creation_and_locking_when_reading_rods "
+        "-knownSites {config[known_variants][mills]} "
+        "-o {output} >& {log}"
+
+#run mutect to identify somatic mutations
+rule mutect:
+    input:
+        reference=config["references"],
+        case="{prefix}-Br.marked.realigned.recal.bam",
+        control="{prefix}-BL.marked.realigned.recal.bam"
+    output:
+        vcf="mutect/{prefix}.vcf",
+        coverage=temp("mutect/{prefix}.cov"),
+        idx="mutect/{prefix}.vcf.idx"
+    threads: 8
+    log: "log/{prefix}.mutect.log"
+    shell: "java -XX:+UseConcMarkSweepGC -XX:ParallelGCThreads=4 -jar {config[tools][mutect]} --analysis_type MuTect "
+               "--cosmic {config[known_variants][cosmic]} --dbsnp {config[known_variants][dbsnp]} "
+               "--reference_sequence {input.reference} "
+               "--input_file:normal {input.control} --input_file:tumor {input.case} "
+               "--fraction_contamination 0 "
+               "--disable_auto_index_creation_and_locking_when_reading_rods "
+               "--vcf {output.vcf} --coverage_file {output.coverage} >& {log}"
+
+#Filter selects variants in vcf files tagged as 'PASS'
+rule vcf_filter_PASS:
+    input: "{prefix}.vcf"
+    output: temp("{prefix}.passed.vcf")
+    shell: "java -jar {config[tools][snpsift]} filter -f {input} "
+           "\"( FILTER = 'PASS' )\" > {output}"
+
+
+rule ebfilter:
+    input: passed_vcf = "{method}/{prefix}.passed.vcf",
+        bam = "{prefix}-Br.marked.realigned.recal.bam"
+    output: temp("{method}/{prefix}.passed.EB.vcf")
+    threads: 8 
+    params: normal=config["normal_bam_list"],
+    shell:
+        "source /cluster/ngs/utils/miniconda/bin/activate root && EBFilter -t {threads} {input.passed_vcf} "
+        "{input.bam} "
+        "{params.normal} "
+        "{output}"
+
+#get path to reference genome file with name of 'ref'
+def _get_snpeff(wildcards):
+    return config["snpeff_db"]
+
+#Annotate variants with snpeff
+#WARNING: only works with GRCH37 for now
+#rule vcf_gene_annotation_snpeff:
+#    input: "{prefix}.vcf"
+#    output: "{prefix}.annotated.vcf"
+#    threads: 8
+#    shell: "java -Xmx16g -jar {config[tools][snpeff]} eff -v GRCh37.75 {input} > {output}"
+
+#Annotate variants with snpeff
+#WARNING: only works with GRCH37 for now
+rule vcf_gene_annotation_snpeff:
+    input: "{prefix}.vcf"
+    output: temp("{prefix}.variant_annotation.vcf")
+    params: db=_get_snpeff
+    threads: 4
+    shell: "java -Xmx16g -jar {config[tools][snpeff]} eff -noStats -noLog -v {params.db} {input} > {output}"
+
+#Select missense variants in the input vcf file and stores data to *.missense.vcf
+#Vcf data must be annotated with snpeff
+rule vcf_extract_missense:
+    input: "{prefix}.variant_annotation.vcf"
+    output: temp("{prefix}.variant_annotation.{type,(HIGH|MODERATE)}.vcf")
+    threads: 4
+    shell: "java -Xmx16g -jar {config[tools][snpsift]} filter -f {input} \"ANN[*].IMPACT = '{wildcards.type}'\"  > {output}"
+
+#Annotate vcf with functional information from dbnsfp
+rule vcf_functional_annotation:
+    input: "{prefix}.vcf"
+    output: temp("{prefix}_functional_annotation.vcf")
+    threads: 4
+    shell: "java -Xmx16g -jar {config[tools][snpsift]} dbnsfp -v -db {config[db][dbnsfp]} "
+           "{input} > {output}"
+
+import os
+def _get_path(wildcards):
+    return os.getcwd()
+
+#get path to dict file of reference genome
+def _get_dict(wildcards):
+    return config["references"].replace(".fasta",".dict").replace(".fa",".dict")
+
+#Merge snv vcf and indel vcf into one vcf file
+rule strelka_result_merge:
+    input:
+        snp="strelka/{prefix}/results/passed.somatic.snvs.vcf",
+        indel="strelka/{prefix}/results/passed.somatic.indels.vcf",
+        dict=_get_dict
+    output:
+        all="strelka/{prefix,[^/]+}.passed.vcf"
+    params:
+        dict=_get_dict
+    shell:
+        "java -jar {config[tools][picard]} MergeVcfs I={input.snp} I={input.indel} "
+        "O={output.all} D={input.dict} && rm -rf strelka/{wildcards.prefix}"
+
+
+#Run strelka for somatic mutation analysis
+#makes two vcfs for snvs and indels respectively
+#WARNING only works with bwa aligned bam for now
+rule strelka_run:
+    input:
+        reference=config["references"],
+        case="{prefix}-Br.marked.realigned.recal.bam",
+        control="{prefix}-BL.marked.realigned.recal.bam"
+    output:
+        snp=temp("strelka/{prefix,[^/]+}/results/passed.somatic.snvs.vcf"),
+        indel=temp("strelka/{prefix,[^/]+}/results/passed.somatic.indels.vcf")
+    threads: 8
+    params:
+        outpath="strelka/{prefix}",
+        path=_get_path
+    shell:
+        "rm -rf {params.outpath} && "
+        "{config[tools][strelka]}bin/configureStrelkaWorkflow.pl --normal={params.path}/{input.control} --tumor={params.path}/{input.case} "
+        "--ref={input.reference} --config={config[tools][strelka]}/etc/strelka_config_bwa_wes.ini "
+        "--output-dir={params.outpath} && make -j {threads} -C {params.outpath}"
+
+#Inhouse filter for variants
+rule inhouse_filter:
+    input: vcf="{alg}/{prefix}.{process}.vcf"
+    output: vcf=temp("{alg}/{prefix,[^.]+}.{process}.inhouseF.vcf")
+    params: exp = "( dbNSFP_phastCons100way_vertebrate > 0.9 ) & ( dbNSFP_Polyphen2_HVAR_pred[ANY] = 'P' | dbNSFP_Polyphen2_HVAR_pred[ANY] = 'D' ) & ( dbNSFP_Polyphen2_HDIV_pred[ANY] = 'P' | dbNSFP_Polyphen2_HDIV_pred[ANY] = 'D' ) & ( dbNSFP_SIFT_pred[ANY] = 'D' | dbNSFP_SIFT_pred[ANY] = 'P' ) & ( ( na dbNSFP_ExAC_AF ) | dbNSFP_ExAC_AF < 0.001 ) & ! ( ID =~ 'rs' ) & ( GEN[Exome_{prefix}-Br].BQ > 25 ) & ( GEN[0].DP > 100 ) & ( GEN[1].DP > 100 )" if "{alg}" == "mutect" else "( dbNSFP_phastCons100way_vertebrate > 0.9 ) & ( dbNSFP_Polyphen2_HVAR_pred[ANY] = 'P' | dbNSFP_Polyphen2_HVAR_pred[ANY] = 'D' ) & ( dbNSFP_Polyphen2_HDIV_pred[ANY] = 'P' | dbNSFP_Polyphen2_HDIV_pred[ANY] = 'D' ) & ( dbNSFP_SIFT_pred[ANY] = 'D' | dbNSFP_SIFT_pred[ANY] = 'P' ) & ( ( na dbNSFP_ExAC_AF ) | dbNSFP_ExAC_AF < 0.001 ) & ! ( ID =~ 'rs' ) & ( GEN[0].DP > 100 ) & ( GEN[1].DP > 100 )"
+    shell:
+        "if [ -s {input.vcf} ]; "
+        "then /cluster/ngs/snpEff4.2/scripts/snpSift_filter_sample_to_number.pl {input.vcf} \"{params.exp}\" | "
+        "java -jar {config[tools][snpsift]} filter -f {input.vcf} -e - > {output.vcf}; "
+        "else  touch {output.vcf}; "
+        "fi"
+
+#Fix GERP and split vcf to table form
+rule fix_vcf_mutect:
+    input: "mutect/{prefix}.vcf"
+    output:
+        fix=temp("mutect/{prefix}_fix.vcf"),
+        final="mutect/{prefix}_fix_final.vcf"
+    shell:
+        "sed 's/dbNSFP_GERP__/dbNSFP_GERP/g' {input} | tee {output.fix} | "
+        "/blues/scratch/juneh/panelTest/vcfEffOnePerLine.pl | "
+        "java -jar {config[tools][snpsift]} extractFields - CHROM POS ID REF ALT FORMAT EB 'GEN[*].DP' 'GEN[*].AD' 'ANN[*].IMPACT' 'ANN[*].GENE' 'ANN[*].EFFECT' 'ANN[*].HGVS_C' 'ANN[*].HGVS_P' dbNSFP_SIFT_pred dbNSFP_Polyphen2_HDIV_pred dbNSFP_Polyphen2_HVAR_pred dbNSFP_MutationTaster_pred dbNSFP_GERP_NR dbNSFP_GERP_RS dbNSFP_phastCons100way_vertebrate dbNSFP_CADD_phred dbNSFP_ExAC_AC dbNSFP_ExAC_AF dbNSFP_ExAC_Adj_AC dbNSFP_ExAC_Adj_AF dbNSFP_ExAC_EAS_AC dbNSFP_ExAC_EAS_AF dbNSFP_ExAC_SAS_AC dbNSFP_ExAC_SAS_AF dbNSFP_ExAC_AFR_AC dbNSFP_ExAC_AFR_AF dbNSFP_ExAC_AMR_AC dbNSFP_ExAC_AMR_AF dbNSFP_ExAC_NFE_AC dbNSFP_ExAC_NFE_AF dbNSFP_ExAC_FIN_AC dbNSFP_ExAC_FIN_AF > {output.final}"
+
+rule fix_vcf_strelka:
+    input: "strelka/{prefix}.vcf"
+    output: 
+        fix=temp("strelka/{prefix}_fix.vcf"),
+        final="strelka/{prefix}_fix_final.vcf"
+    shell:
+        "sed 's/dbNSFP_GERP__/dbNSFP_GERP/g' {input} | tee {output.fix} | "
+        "/blues/scratch/juneh/panelTest/vcfEffOnePerLine.pl | "
+        "java -jar {config[tools][snpsift]} extractFields - CHROM POS ID REF ALT FORMAT EB 'GEN[*].DP' 'GEN[*].AU' 'GEN[*].CU' 'GEN[*].GU' 'GEN[*].TU' 'ANN[*].IMPACT' 'ANN[*].GENE' 'ANN[*].EFFECT' 'ANN[*].HGVS_C' 'ANN[*].HGVS_P' dbNSFP_SIFT_pred dbNSFP_Polyphen2_HDIV_pred dbNSFP_Polyphen2_HVAR_pred dbNSFP_MutationTaster_pred dbNSFP_GERP_NR dbNSFP_GERP_RS dbNSFP_phastCons100way_vertebrate dbNSFP_CADD_phred dbNSFP_ExAC_AC dbNSFP_ExAC_AF dbNSFP_ExAC_Adj_AC dbNSFP_ExAC_Adj_AF dbNSFP_ExAC_EAS_AC dbNSFP_ExAC_EAS_AF dbNSFP_ExAC_SAS_AC dbNSFP_ExAC_SAS_AF dbNSFP_ExAC_AFR_AC dbNSFP_ExAC_AFR_AF dbNSFP_ExAC_AMR_AC dbNSFP_ExAC_AMR_AF dbNSFP_ExAC_NFE_AC dbNSFP_ExAC_NFE_AF dbNSFP_ExAC_FIN_AC dbNSFP_ExAC_FIN_AF > {output.final}"
