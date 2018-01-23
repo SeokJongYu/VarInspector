@@ -20,6 +20,7 @@
         "samtools": "/cluster/ngs/samtools-1.6/samtools",
         "bedtools": "/cluster/ngs/bedtools2/bin/bedtools",
         "tabix": "/cluster/ngs/utils/htslib-1.3/tabix",
+        "fastQValidator": "/cluster/ngs/fastQValidator_0.1.1a/fastQValidator/bin/fastQValidator",
     },
     "normal_bam_list": "/blues/scratch/juneh/panelTest/normals/normal_bam_list.txt",
     "snpeff_db": "GRCh37.75",

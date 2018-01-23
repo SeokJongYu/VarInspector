@@ -1,11 +1,22 @@
 def _get_bwa_threads(wildcards):
     return int(config["params_bwa_threads"])
 
+#Run fastQValidator to validate integrity of fastq file
+rule fastQValidator:
+    input:
+        "{prefix}.fastq.gz"
+    output:
+        "{prefix}.fastqvalidator.txt"
+    threads: 2
+    shell:
+        "{config[tools][fastQValidator]} --maxErrors 1 --noeof --disableSeqIDCheck --file {input} | tee {output}"
+
 #Align reads with bwa mem algorithm
 rule bwa_mem_map:
     input:
         fastqs=expand("{{prefix}}_{reads}.fastq.gz", reads=["1", "2"]),
-        reference=config["references"]
+        reference=config["references"],
+        validations=expand("{{prefix}}_{reads}.fastqvalidator.txt", reads=["1", "2"])
     output:
         temp("{prefix,[^/]+}.sam")
     params:
