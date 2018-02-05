@@ -1,5 +1,11 @@
 class AnalysesController < ApplicationController
+  before_action :get_project
   before_action :set_analysis, only: [:show, :edit, :update, :destroy]
+
+
+  def get_project
+    @project = Project.friendly.find(params[:project_id])
+  end
 
   # GET /analyses
   # GET /analyses.json
@@ -14,7 +20,7 @@ class AnalysesController < ApplicationController
 
   # GET /analyses/new
   def new
-    @analysis = Analysis.new
+    @analysis = @project.analyses.new
   end
 
   # GET /analyses/1/edit

@@ -1,52 +1,77 @@
-<%= form_with(model: analysis, local: true) do |form| %>
-  <% if analysis.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(analysis.errors.count, "error") %> prohibited this analysis from being saved:</h2>
 
-      <ul>
-      <% analysis.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
+        <div class="clearfix"></div>
+        <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+              <div class="x_title">
+                <!-- %= @title % -->
+                <%= @title %>
+                <div class="clearfix"></div>
+              </div>
+              <div class="x_content">
+                <br />
+                  <%= form_with(model: [@project, @analysis], class: "form-horizontal form-label-left", id: "demo-form2") do |form| %>
 
-  <div class="field">
-    <%= form.label :name %>
-    <%= form.text_field :name, id: :analysis_name %>
-  </div>
+                  <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Name <span class="required">*</span>
+                    </label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                      <%= form.text_field :name, id: :analysis_name, class: 'form-control col-md-7 col-xs-12', required: true %>
+                    </div>
+                  </div>
 
-  <div class="field">
-    <%= form.label :descriptioni %>
-    <%= form.text_area :descriptioni, id: :analysis_descriptioni %>
-  </div>
+                  <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Content <span class="required">*</span>
+                    </label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                      <%= form.text_area :description, id: :analysis_description, cols: 80, rows: 5, class: 'resizable_textarea form-control', placeholder: 'description' %>
+                    </div>
+                  </div>
 
-  <div class="field">
-    <%= form.label :seq_blood1 %>
-    <%= form.text_area :seq_blood1, id: :analysis_seq_blood1 %>
-  </div>
+                  <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Blood Sequence file 1(FASTQ) <span class="required">*</span>
+                    </label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                      <%= form.file_field :seq_blood1, id: :analysis_seq_blood1,  class: 'form-control col-md-7 col-xs-12', required: true %>
+                    </div>
+                  </div>
 
-  <div class="field">
-    <%= form.label :seq_blood2 %>
-    <%= form.text_area :seq_blood2, id: :analysis_seq_blood2 %>
-  </div>
+                  <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Blood Sequence file 2(FASTQ) <span class="required">*</span>
+                    </label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                      <%= form.file_field :seq_blood2, id: :analysis_seq_blood2,  class: 'form-control col-md-7 col-xs-12', required: true %>
+                    </div>
+                  </div>
 
-  <div class="field">
-    <%= form.label :seq_brain1 %>
-    <%= form.text_area :seq_brain1, id: :analysis_seq_brain1 %>
-  </div>
+                  <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Brain Sequence file 1(FASTQ) <span class="required">*</span>
+                    </label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                      <%= form.file_field :seq_brain1, id: :analysis_seq_brain1,  class: 'form-control col-md-7 col-xs-12', required: true %>
+                    </div>
+                  </div>
 
-  <div class="field">
-    <%= form.label :seq_brain2 %>
-    <%= form.text_area :seq_brain2, id: :analysis_seq_brain2 %>
-  </div>
+                  <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Brain Sequence file 2(FASTQ) <span class="required">*</span>
+                    </label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                      <%= form.file_field :seq_brain2, id: :analysis_seq_brain2,  class: 'form-control col-md-7 col-xs-12', required: true %>
+                    </div>
+                  </div>
+                  <%= form.hidden_field :project_id, id: :analysis_project_id %>
+                  <div class="ln_solid"></div>
+                  <div class="form-group">
+                    <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                      <button class="btn btn-primary" type="button">Cancel</button>
+				              <button class="btn btn-primary" type="reset">Reset</button>
+                      <button type="submit" class="btn btn-success">Submit</button>
+                    </div>
+                  </div>
 
-  <div class="field">
-    <%= form.label :project_id %>
-    <%= form.text_field :project_id, id: :analysis_project_id %>
-  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
 
-  <div class="actions">
-    <%= form.submit %>
-  </div>
-<% end %>
