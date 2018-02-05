@@ -10,27 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180115162816) do
+ActiveRecord::Schema.define(version: 20180205042436) do
 
   create_table "analyses", force: :cascade do |t|
-    t.string "title"
-    t.string "description"
-    t.integer "datum_id"
-    t.integer "project_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["datum_id"], name: "index_analyses_on_datum_id"
-    t.index ["project_id"], name: "index_analyses_on_project_id"
-  end
-
-  create_table "data", force: :cascade do |t|
     t.string "name"
-    t.text "content"
-    t.string "data_type"
+    t.text "descriptioni"
+    t.text "seq_blood1"
+    t.text "seq_blood2"
+    t.text "seq_brain1"
+    t.text "seq_brain2"
+    t.integer "project_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "project_id"
-    t.index ["project_id"], name: "index_data_on_project_id"
+    t.index ["project_id"], name: "index_analyses_on_project_id"
   end
 
   create_table "friendly_id_slugs", force: :cascade do |t|
@@ -55,21 +47,48 @@ ActiveRecord::Schema.define(version: 20180115162816) do
   end
 
   create_table "results", force: :cascade do |t|
-    t.text "output"
+    t.string "CHROM"
+    t.integer "POS"
+    t.string "VCF_ID"
+    t.string "REF"
+    t.string "ALT"
+    t.string "FORMAT"
+    t.decimal "EB"
+    t.integer "GEN_DP"
+    t.integer "GEN_AD"
+    t.string "ANN_IMPACT"
+    t.string "ANN_GENE"
+    t.string "ANN_EFFECT"
+    t.string "ANN_HGVS_C"
+    t.string "ANN_HGVS_P"
+    t.string "dbNSFP_SIFT_pred"
+    t.string "dbNSFP_Polyphen2_HDIV_pred"
+    t.string "dbNSFP_Polyphen2_HVAR_pred"
+    t.string "dbNSFP_MutationTaster_pred"
+    t.string "dbNSFP_GERP_NR"
+    t.string "dbNSFP_GERP_RS"
+    t.decimal "dbNSFP_phastCons100way_vertebrate"
+    t.decimal "dbNSFP_CADD_phred"
+    t.integer "dbNSFP_ExAC_AC"
+    t.decimal "dbNSFP_ExAC_AF"
+    t.integer "dbNSFP_ExAC_Adj_AC"
+    t.decimal "dbNSFP_ExAC_Adj_AF"
+    t.integer "dbNSFP_ExAC_EAS_AC"
+    t.decimal "dbNSFP_ExAC_EAS_AF"
+    t.integer "dbNSFP_ExAC_SAS_AC"
+    t.decimal "dbNSFP_ExAC_SAS_AF"
+    t.integer "dbNSFP_ExAC_AFR_AC"
+    t.decimal "dbNSFP_ExAC_AFR_AF"
+    t.integer "dbNSFP_ExAC_AMR_AC"
+    t.decimal "dbNSFP_ExAC_AMR_AF"
+    t.integer "dbNSFP_ExAC_NFE_AC"
+    t.decimal "dbNSFP_ExAC_NFE_AF"
+    t.integer "dbNSFP_ExAC_FIN_AC"
+    t.decimal "dbNSFP_ExAC_FIN_AF"
     t.integer "analysis_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["analysis_id"], name: "index_results_on_analysis_id"
-  end
-
-  create_table "tool_items", force: :cascade do |t|
-    t.integer "analysis_id"
-    t.string "itemable_type"
-    t.integer "itemable_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["analysis_id"], name: "index_tool_items_on_analysis_id"
-    t.index ["itemable_type", "itemable_id"], name: "index_tool_items_on_itemable_type_and_itemable_id"
   end
 
 end

@@ -69,6 +69,6 @@ class AnalysesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def analysis_params
-      params.fetch(:analysis, {})
+      params.require(:analysis).permit(:name, :descriptioni, :seq_blood1, :seq_blood2, :seq_brain1, :seq_brain2, :project_id)
     end
 end
