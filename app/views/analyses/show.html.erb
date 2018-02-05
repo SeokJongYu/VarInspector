@@ -1,4 +1,39 @@
 <p id="notice"><%= notice %></p>
 
+<p>
+  <strong>Name:</strong>
+  <%= @analysis.name %>
+</p>
+
+<p>
+  <strong>Descriptioni:</strong>
+  <%= @analysis.descriptioni %>
+</p>
+
+<p>
+  <strong>Seq blood1:</strong>
+  <%= @analysis.seq_blood1 %>
+</p>
+
+<p>
+  <strong>Seq blood2:</strong>
+  <%= @analysis.seq_blood2 %>
+</p>
+
+<p>
+  <strong>Seq brain1:</strong>
+  <%= @analysis.seq_brain1 %>
+</p>
+
+<p>
+  <strong>Seq brain2:</strong>
+  <%= @analysis.seq_brain2 %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @analysis.project %>
+</p>
+
 <%= link_to 'Edit', edit_analysis_path(@analysis) %> |
 <%= link_to 'Back', analyses_path %>

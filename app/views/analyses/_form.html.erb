@@ -11,6 +11,41 @@
     </div>
   <% end %>
 
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name, id: :analysis_name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :descriptioni %>
+    <%= form.text_area :descriptioni, id: :analysis_descriptioni %>
+  </div>
+
+  <div class="field">
+    <%= form.label :seq_blood1 %>
+    <%= form.text_area :seq_blood1, id: :analysis_seq_blood1 %>
+  </div>
+
+  <div class="field">
+    <%= form.label :seq_blood2 %>
+    <%= form.text_area :seq_blood2, id: :analysis_seq_blood2 %>
+  </div>
+
+  <div class="field">
+    <%= form.label :seq_brain1 %>
+    <%= form.text_area :seq_brain1, id: :analysis_seq_brain1 %>
+  </div>
+
+  <div class="field">
+    <%= form.label :seq_brain2 %>
+    <%= form.text_area :seq_brain2, id: :analysis_seq_brain2 %>
+  </div>
+
+  <div class="field">
+    <%= form.label :project_id %>
+    <%= form.text_field :project_id, id: :analysis_project_id %>
+  </div>
+
   <div class="actions">
     <%= form.submit %>
   </div>
