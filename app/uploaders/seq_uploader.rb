@@ -1,0 +1,3 @@
+class SeqUploader < Shrine
+    
+end

@@ -21,24 +21,24 @@ class CreateResults < ActiveRecord::Migration[5.1]
       t.string :dbNSFP_MutationTaster_pred
       t.string :dbNSFP_GERP_NR
       t.string :dbNSFP_GERP_RS
-      t.decimal :dbNSFP_phastCons100way_vertebrate
-      t.decimal :dbNSFP_CADD_phred
+      t.decimal :dbNSFP_phastCons100way_vertebrate, :precision => 3, :scale => 5
+      t.decimal :dbNSFP_CADD_phred, :precision => 3, :scale => 5
       t.integer :dbNSFP_ExAC_AC
-      t.decimal :dbNSFP_ExAC_AF
+      t.decimal :dbNSFP_ExAC_AF, :precision => 3, :scale => 5
       t.integer :dbNSFP_ExAC_Adj_AC
-      t.decimal :dbNSFP_ExAC_Adj_AF
+      t.decimal :dbNSFP_ExAC_Adj_AF, :precision => 3, :scale => 5
       t.integer :dbNSFP_ExAC_EAS_AC
-      t.decimal :dbNSFP_ExAC_EAS_AF
+      t.decimal :dbNSFP_ExAC_EAS_AF, :precision => 3, :scale => 5
       t.integer :dbNSFP_ExAC_SAS_AC
-      t.decimal :dbNSFP_ExAC_SAS_AF
+      t.decimal :dbNSFP_ExAC_SAS_AF, :precision => 3, :scale => 5
       t.integer :dbNSFP_ExAC_AFR_AC
-      t.decimal :dbNSFP_ExAC_AFR_AF
+      t.decimal :dbNSFP_ExAC_AFR_AF, :precision => 3, :scale => 5
       t.integer :dbNSFP_ExAC_AMR_AC
-      t.decimal :dbNSFP_ExAC_AMR_AF
+      t.decimal :dbNSFP_ExAC_AMR_AF, :precision => 3, :scale => 5
       t.integer :dbNSFP_ExAC_NFE_AC
-      t.decimal :dbNSFP_ExAC_NFE_AF
+      t.decimal :dbNSFP_ExAC_NFE_AF, :precision => 3, :scale => 5
       t.integer :dbNSFP_ExAC_FIN_AC
-      t.decimal :dbNSFP_ExAC_FIN_AF
+      t.decimal :dbNSFP_ExAC_FIN_AF, :precision => 3, :scale => 5
       t.references :analysis, foreign_key: true
 
       t.timestamps

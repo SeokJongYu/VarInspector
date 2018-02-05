@@ -14,11 +14,14 @@ ActiveRecord::Schema.define(version: 20180205042436) do
 
   create_table "analyses", force: :cascade do |t|
     t.string "name"
-    t.text "descriptioni"
-    t.text "seq_blood1"
-    t.text "seq_blood2"
-    t.text "seq_brain1"
-    t.text "seq_brain2"
+    t.text "description"
+    t.string "seq_blood1"
+    t.string "seq_blood2"
+    t.string "seq_brain1"
+    t.string "seq_brain2"
+    t.string "job_id"
+    t.string "status"
+    t.string "result_dir"
     t.integer "project_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -67,24 +70,24 @@ ActiveRecord::Schema.define(version: 20180205042436) do
     t.string "dbNSFP_MutationTaster_pred"
     t.string "dbNSFP_GERP_NR"
     t.string "dbNSFP_GERP_RS"
-    t.decimal "dbNSFP_phastCons100way_vertebrate"
-    t.decimal "dbNSFP_CADD_phred"
+    t.decimal "dbNSFP_phastCons100way_vertebrate", precision: 3, scale: 5
+    t.decimal "dbNSFP_CADD_phred", precision: 3, scale: 5
     t.integer "dbNSFP_ExAC_AC"
-    t.decimal "dbNSFP_ExAC_AF"
+    t.decimal "dbNSFP_ExAC_AF", precision: 3, scale: 5
     t.integer "dbNSFP_ExAC_Adj_AC"
-    t.decimal "dbNSFP_ExAC_Adj_AF"
+    t.decimal "dbNSFP_ExAC_Adj_AF", precision: 3, scale: 5
     t.integer "dbNSFP_ExAC_EAS_AC"
-    t.decimal "dbNSFP_ExAC_EAS_AF"
+    t.decimal "dbNSFP_ExAC_EAS_AF", precision: 3, scale: 5
     t.integer "dbNSFP_ExAC_SAS_AC"
-    t.decimal "dbNSFP_ExAC_SAS_AF"
+    t.decimal "dbNSFP_ExAC_SAS_AF", precision: 3, scale: 5
     t.integer "dbNSFP_ExAC_AFR_AC"
-    t.decimal "dbNSFP_ExAC_AFR_AF"
+    t.decimal "dbNSFP_ExAC_AFR_AF", precision: 3, scale: 5
     t.integer "dbNSFP_ExAC_AMR_AC"
-    t.decimal "dbNSFP_ExAC_AMR_AF"
+    t.decimal "dbNSFP_ExAC_AMR_AF", precision: 3, scale: 5
     t.integer "dbNSFP_ExAC_NFE_AC"
-    t.decimal "dbNSFP_ExAC_NFE_AF"
+    t.decimal "dbNSFP_ExAC_NFE_AF", precision: 3, scale: 5
     t.integer "dbNSFP_ExAC_FIN_AC"
-    t.decimal "dbNSFP_ExAC_FIN_AF"
+    t.decimal "dbNSFP_ExAC_FIN_AF", precision: 3, scale: 5
     t.integer "analysis_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

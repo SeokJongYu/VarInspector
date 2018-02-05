@@ -70,20 +70,20 @@
                   <tr>
                     <th>#</th>
                     <th>Name</th>
-                    <th>Content </th>
-                    <th>Type</th>
+                    <th>Description </th>
+                    <th>Status</th>
                     <th>Command</th>
                   </tr>
                 </thead>
                 <tbody>
-                <% @data.each do |datum| %>
+                <% @analysis.each do |analy| %>
                   <tr>
-                    <td><%= datum.id %></td>
-                    <td><%= datum.name %></td>
-                    <td><pre><%= datum.content %></pre></td>
-                    <td><%= datum.data_type %></td>
-                    <td><%= link_to 'Show', project_datum_path(@project, datum.id), :class => "btn btn-sm btn-primary" %>
-                    <%= link_to 'Edit', edit_project_datum_path(@project, datum), :class => "btn btn-sm btn-warning" %></td>
+                    <td><%= analy.id %></td>
+                    <td><%= analy.name %></td>
+                    <td><%= analy.description %></td>
+                    <td><%= analy.status %></td>
+                    <td><%= link_to 'Show', project_analysis_path(@project, analy.id), :class => "btn btn-sm btn-primary" %>
+                    <td>
                   </tr>
                 <% end %>
                 </tbody>
@@ -96,7 +96,7 @@
           <div class="row no-print">
             <div class="col-xs-12">
               <%= link_to '<i class="fa fa-arrow-left"></i> Back'.html_safe, projects_path , :class => "btn btn-primary pull-right" %>     
-              <%= link_to '<i class="fa fa-file"></i> New Data'.html_safe , new_project_datum_path(@project) , :class => "btn btn-success pull-right", :style => "margin-right: 5px;" %>
+              <%= link_to '<i class="fa fa-file"></i> New Analysis'.html_safe , new_project_analysis_path(@project) , :class => "btn btn-success pull-right", :style => "margin-right: 5px;" %>
             </div>
           </div>
           

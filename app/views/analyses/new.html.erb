@@ -1,5 +1,15 @@
-<h1>New Analysis</h1>
+<% provide(:title, 'New Analysis') %>
 
-<%= render 'form', analysis: @analysis %>
+<div class="">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>New Analysis</h3>
+        </div>
+    </div>
 
-<%= link_to 'Back', analyses_path %>
+
+<%= render 'form', project: @project, analysis: @analysis %>
+
+<%= link_to 'Back', project_path(@project) %>
+
+</div>
