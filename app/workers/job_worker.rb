@@ -7,110 +7,100 @@ class JobWorker
       analysis = Analysis.find(analysis_id)
       # make input file
       create_data(analysis)
-      # make run.sh script
-      create_script(analysis)
-      # create torque controller and lanch
-      lanch_torque_job(analysis)
+
+      # create slurm controller and lanch
+      # lanch_slurm_job(analysis)
       # monitoring analysis job and do post processing
-      poll_job(analysis)
-      post_processing(analysis)
+      # poll_job(analysis)
+      # post_processing(analysis)
   
     end
   
     def create_data(analysis)
-      datum = analysis.datum
+
       project = analysis.project
-  
-      @dir_str = "/tmp/kepre/" + project.title + "/" + analysis.id.to_s
-      @file_str = @dir_str + '/' + datum.name 
-      FileUtils::mkdir_p @dir_str
-      File.open(@file_str, "w") {|f| f.write(datum.content)}
-    end
-  
-    def create_script(analysis)
-  
-      tool_item = analysis.tool_item
-      mhci_option = MhciItem.find(tool_item.itemable_id)
+
+      blood_file1 = analysis.seq_blood1_data
+      blood_file2 = analysis.seq_blood2_data
+      brain_file1 = analysis.seq_brain1_data
+      brain_file2 = analysis.seq_brain2_data
+      puts blood_file1.to_yaml
       
-      @script_file = @dir_str + '/run.sh'
-      @output_file = @dir_str + '/output.txt'
+      puts ">>>>" + blood_file1.values[0]
+      blood_file1_loc = "public/uploads/store/" + blood_file1.values[0]
   
-      begin
-        script = File.open(@script_file, "w")
-        script.write("#!/bin/sh\n")
-        script.write("\n")
-        script.write("#PBS -N Kepre-MHC_I\n")
-        script.write("#PBS -l nodes=1,walltime=00:01:00\n")
-        script.write("#PBS -q batch\n")
-        script.write("\n")
-        script.write("cd #{@dir_str} \n")
-        script.write("/usr/local/IEDB/mhc_i/src/predict_binding.py #{mhci_option.getArgs} #{@file_str} > output.txt\n")
-  
-      rescue IOError => e 
-      ensure
-        script.close unless script.nil?
-      end
+      @dir_str = "/tmp/KAIST/" + project.title + "/" + analysis.id.to_s
+      @blood_file1_str = @dir_str + '/' + "BL_F1.fastq"
+      @blood_file2_str = @dir_str + '/' + "BL_F2.fastq"
+      @brain_file1_str = @dir_str + '/' + "BR_F1.fastq"
+      @brain_file2_str = @dir_str + '/' + "BR_F2.fastq"
+
+      FileUtils::mkdir_p @dir_str
+      #copy the file form /public/uploads/ to working dir
+      FileUtils.mv(blood_file1_loc, @blood_file1_str)
+      
     end
   
   
-    def lanch_torque_job(analysis)
-      @b = PBS::Batch.new(
-        host: 'manjaro-codegen',
-        lib: '/usr/lib',
-        bin: '/usr/bin'
-        )
-      @job_id = @b.submit_script(@script_file)
   
-      analysis.job_id = @job_id
-      analysis.status = "submit"
-      analysis.save
+    def lanch_slurm_job(analysis)
+      # @b = PBS::Batch.new(
+      #   host: 'manjaro-codegen',
+      #   lib: '/usr/lib',
+      #   bin: '/usr/bin'
+      #   )
+      # @job_id = @b.submit_script(@script_file)
+  
+      # analysis.job_id = @job_id
+      # analysis.status = "submit"
+      # analysis.save
     end
   
     def poll_job(analysis)
-      job_id = analysis.job_id
-      status = analysis.status
-      stat_server = "submit"
-      until stat_server == "Done"  do
-        @stat = @b.get_job(job_id)
-        puts @stat.to_yaml
-        puts ">>>>>"
-        puts job_id
-        @stat.each_key {|key| puts key }
-        val = @stat[job_id]
-        stat_str = val[:job_state]
-        if stat_str == "Q" 
-          stat_server = "Queue"
-        elsif stat_str == "R"
-          stat_server = "Running"
-        elsif stat_str == "C"
-          stat_server = "Done"
-        end
+      # job_id = analysis.job_id
+      # status = analysis.status
+      # stat_server = "submit"
+      # until stat_server == "Done"  do
+      #   @stat = @b.get_job(job_id)
+      #   puts @stat.to_yaml
+      #   puts ">>>>>"
+      #   puts job_id
+      #   @stat.each_key {|key| puts key }
+      #   val = @stat[job_id]
+      #   stat_str = val[:job_state]
+      #   if stat_str == "Q" 
+      #     stat_server = "Queue"
+      #   elsif stat_str == "R"
+      #     stat_server = "Running"
+      #   elsif stat_str == "C"
+      #     stat_server = "Done"
+      #   end
   
-        if stat_server != status
-          analysis.status = stat_server
-          analysis.save
-          sleep 10
-        end
+      #   if stat_server != status
+      #     analysis.status = stat_server
+      #     analysis.save
+      #     sleep 10
+      #   end
         
-      end
+      # end
     end
   
     def post_processing(analysis)
       # create Result
-      result = Result.new()
-      result.location = @output_file
-      result.analysis = analysis
-      result.save
+      # result = Result.new()
+      # result.location = @output_file
+      # result.analysis = analysis
+      # result.save
   
-      csv_text = File.read(@output_file)
-      csv = CSV.parse(csv_text, :col_sep =>"\t", :headers => true, :converters => lambda { |s| s.tr("-","") })
-      csv.each do |row|
-        puts row.to_hash
-        mhc_result = MhciResult.create(row.to_hash)
-        mhc_result.result = result
-        mhc_result.save
+      # csv_text = File.read(@output_file)
+      # csv = CSV.parse(csv_text, :col_sep =>"\t", :headers => true, :converters => lambda { |s| s.tr("-","") })
+      # csv.each do |row|
+      #   puts row.to_hash
+      #   mhc_result = MhciResult.create(row.to_hash)
+      #   mhc_result.result = result
+      #   mhc_result.save
       
-      end
+      # end
       
     end
   
