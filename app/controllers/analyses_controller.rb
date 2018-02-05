@@ -34,7 +34,7 @@ class AnalysesController < ApplicationController
 
     respond_to do |format|
       if @analysis.save
-        format.html { redirect_to @analysis, notice: 'Analysis was successfully created.' }
+        format.html { redirect_to [@project,@analysis], notice: 'Analysis was successfully created.' }
         format.json { render :show, status: :created, location: @analysis }
       else
         format.html { render :new }
