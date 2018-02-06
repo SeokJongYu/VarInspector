@@ -11,8 +11,8 @@ class JobWorker
       # create slurm controller and lanch
       lanch_slurm_job(analysis)
       # monitoring analysis job and do post processing
-      # poll_job(analysis)
-      # post_processing(analysis)
+      poll_job(analysis)
+      post_processing(analysis)
   
     end
   
@@ -68,6 +68,7 @@ class JobWorker
 
       analysis.job_id = slurm_id
       analysis.status = "submit"
+      analysis.result_dir = @dir_str
       analysis.save
 
     end
@@ -101,21 +102,15 @@ class JobWorker
   
     def post_processing(analysis)
       # create Result
-      # result = Result.new()
-      # result.location = @output_file
-      # result.analysis = analysis
-      # result.save
-  
-      # csv_text = File.read(@output_file)
-      # csv = CSV.parse(csv_text, :col_sep =>"\t", :headers => true, :converters => lambda { |s| s.tr("-","") })
-      # csv.each do |row|
-      #   puts row.to_hash
-      #   mhc_result = MhciResult.create(row.to_hash)
-      #   mhc_result.result = result
-      #   mhc_result.save
-      
-      # end
-      
+      @output_file = analysis.result_dir + "/*.vcf"
+      csv_text = File.read(@output_file)
+      csv = CSV.parse(csv_text, :col_sep =>"\t", :headers => true, :converters => lambda { |s| s.tr("[*]","") })
+      csv.each do |row|
+        puts row.to_hash
+        result = Result.create(row.to_hash)
+        result.analysis = analysis
+        result.save
+      end
     end
 
 end
