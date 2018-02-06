@@ -104,7 +104,7 @@ class JobWorker
       # create Result
       @output_file = analysis.result_dir + "/*.vcf"
       csv_text = File.read(@output_file)
-      csv = CSV.parse(csv_text, :col_sep =>"\t", :headers => true, :converters => lambda { |s| s.tr("[*]","") })
+      csv = CSV.parse(csv_text, :col_sep =>"\t", :headers => true, :converters => lambda { |s| s.tr("[*].","_") })
       csv.each do |row|
         puts row.to_hash
         result = Result.create(row.to_hash)
