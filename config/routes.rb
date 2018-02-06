@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
 
 
+  get 'result/show'
+
+  get 'result/plot'
+
   resources :projects do
     resources :analyses
   end
