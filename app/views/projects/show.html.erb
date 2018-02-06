@@ -81,9 +81,13 @@
                     <td><%= analy.id %></td>
                     <td><%= analy.name %></td>
                     <td><%= analy.description %></td>
-                    <td><%= analy.status %></td>
-                    <td><%= link_to 'Show', project_analysis_path(@project, analy.id), :class => "btn btn-sm btn-primary" %>
+                    <td><button type="button" class="btn btn-info btn-sm"> <span class="glyphicon glyphicon-cog"></span> <%= analy.status %> </button> </td>
                     <td>
+                    <% if analy.status == "Done" %>
+                        <%= link_to '<i class="fa fa-wrench"></i> Result Table'.html_safe, result_show_path( :analysis_id => analysis.id ), :class=>"btn btn-primary" %>
+                        <%= link_to '<i class="fa fa-wrench"></i> Plot'.html_safe, result_plot_path( :analysis_id => analysis.id ), :class=>"btn btn-primary" %>
+                    <% end %>
+                    </td>
                   </tr>
                 <% end %>
                 </tbody>
