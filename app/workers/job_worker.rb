@@ -24,21 +24,40 @@ class JobWorker
       blood_file2 = analysis.seq_blood2_data
       brain_file1 = analysis.seq_brain1_data
       brain_file2 = analysis.seq_brain2_data
-      puts blood_file1.to_yaml
-      
-      puts ">>>>" + blood_file1.values[0]
-      blood_file1_loc = "public/uploads/store/" + blood_file1.values[0]
+
+      hash1 = eval(blood_file1)
+      blood_file1_loc = "public/uploads/store/" + hash1[:id]
+      user_file1 = hash1[:metadata][:filename]
+      user_file1.gsub! '-', ''
+
+      hash2 = eval(blood_file2)
+      blood_file2_loc = "public/uploads/store/" + hash2[:id]
+      user_file2 = hash2[:metadata][:filename]
+      user_file2.gsub! '-', ''
+
+      hash3 = eval(brain_file1)
+      brain_file1_loc = "public/uploads/store/" + hash3[:id]
+      user_file3 = hash3[:metadata][:filename]
+      user_file3.gsub! '-', ''
+
+      hash4 = eval(brain_file2)
+      brain_file2_loc = "public/uploads/store/" + hash4[:id]
+      user_file4 = hash4[:metadata][:filename]
+      user_file4.gsub! '-', ''
+
   
       @dir_str = "/tmp/KAIST/" + project.title + "/" + analysis.id.to_s
-      @blood_file1_str = @dir_str + '/' + "BL_F1.fastq"
-      @blood_file2_str = @dir_str + '/' + "BL_F2.fastq"
-      @brain_file1_str = @dir_str + '/' + "BR_F1.fastq"
-      @brain_file2_str = @dir_str + '/' + "BR_F2.fastq"
+      @blood_file1_str = @dir_str + '/' + user_file1 + "-BL_1.fastq.gz"
+      @blood_file2_str = @dir_str + '/' + user_file2 + "-BL_2.fastq.gz"
+      @brain_file1_str = @dir_str + '/' + user_file3 + "-Br_1.fastq.gz"
+      @brain_file2_str = @dir_str + '/' + user_file4 + "-Br_2.fastq.gz"
 
       FileUtils::mkdir_p @dir_str
       #copy the file form /public/uploads/ to working dir
       FileUtils.mv(blood_file1_loc, @blood_file1_str)
-      
+      FileUtils.mv(blood_file2_loc, @blood_file2_str)
+      FileUtils.mv(brain_file1_loc, @brain_file1_str)
+      FileUtils.mv(brain_file2_loc, @brain_file2_str)
     end
   
   
@@ -103,5 +122,5 @@ class JobWorker
       # end
       
     end
-  
-  end
+
+end
