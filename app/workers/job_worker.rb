@@ -41,7 +41,7 @@ class JobWorker
       @analysis_name_prefix.gsub! '-', ''
       @analysis_name_prefix.gsub! ' ', ''
   
-      @dir_str = "/tmp/KAIST/" + project.title + "/" + analysis.id.to_s
+      @dir_str = "/blues/ngs/service/varinspector/" + project.title + "/" + analysis.id.to_s
       @blood_file1_str = @dir_str + '/' + @analysis_name_prefix + "-BL_1.fastq.gz"
       @blood_file2_str = @dir_str + '/' + @analysis_name_prefix + "-BL_2.fastq.gz"
       @brain_file1_str = @dir_str + '/' + @analysis_name_prefix + "-Br_1.fastq.gz"
@@ -59,7 +59,7 @@ class JobWorker
   
     def lanch_slurm_job(analysis)
 
-      config = {"adapter" => "slurm", "Jane Doe" => "biocluster3.kisti.re.kr", "conf" => nil, "bin" => "/usr/bin"}
+      config = {"adapter" => "slurm", "cluster" => "biocluster4.kisti.re.kr", "conf" => "/etc/slurm", "bin" => "/usr/sbin"}
       @slurm_adptor = OodCore::Job::Factory.build(config)
 
       submit_script = "runService.sh " + @dir_str +" "+@analysis_name_prefix
