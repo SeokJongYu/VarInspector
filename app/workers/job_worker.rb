@@ -10,7 +10,7 @@ class JobWorker
 
       # create slurm controller and lanch
       lanch_slurm_job(analysis)
-      
+
       create_script(anlysis)
 
       # monitoring analysis job and do post processing
@@ -91,7 +91,7 @@ class JobWorker
     def lanch_slurm_job(analysis)
 
       config = {"adapter" => "slurm", "cluster" => "biocluster3", "conf" => "/etc/slurm", "bin" => "/usr/sbin"}
-      @slurm_adptor = OodCore::Job::Factory.build(config)
+      @slurm_adptor = OodCore::Job::Factory.build_slurm(config)
 
       #submit_script = "runService.sh " + @dir_str +" "+@analysis_name_prefix
       #puts submit_script
