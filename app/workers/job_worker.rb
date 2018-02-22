@@ -43,7 +43,7 @@ class JobWorker
       @analysis_name_prefix = analysis.name
       @analysis_name_prefix.gsub! '-', ''
       @analysis_name_prefix.gsub! ' ', ''
-  
+      @job_name = project.title + "_" + analysis.id.to_s
       @dir_str = "/blues/ngs/service/varinspector/" + project.title + "/" + analysis.id.to_s
       @blood_file1_str = @dir_str + '/' + @analysis_name_prefix + "-BL_1.fastq.gz"
       @blood_file2_str = @dir_str + '/' + @analysis_name_prefix + "-BL_2.fastq.gz"
@@ -60,32 +60,20 @@ class JobWorker
   
   
     def create_script(analysis)
-      @script_file = @dir_str + '/run.sh'
-      @JOB_NUM = 2
-      begin
-        script = File.open(@script_file, "w")
-        script.write("#!/bin/sh\n")
-        script.write("\n")
-        script.write("#SBATCH -D /blues/ngs/service/varinspector/snakemake\n")
-        script.write("#SBATCH -o /blues/ngs/service/varinspector/snakemake/logs/%j.out\n")
-        script.write("#SBATCH -p all\n")
-        script.write("#SBATCH -c 1\n")
-        script.write("\n")
+      @script_content ="#!/bin/sh\n\n"
 
-        script.write("PREFIX='#{@analysis_name_prefix}'\n")
-        script.write("DATA_PATH='#{@dir_str}'\n")
-        script.write("JOB_NUM=2\n")
-        script.write("\n")
+      @script_content  << "#SBATCH -D /blues/ngs/service/varinspector/snakemake\n"
+      @script_content  << "#SBATCH -o /blues/ngs/service/varinspector/snakemake/logs/%j.out\n"
+      @script_content  << "#SBATCH -p all\n"
+      @script_content  << "#SBATCH -c 1\n\n"
 
-        script.write("/cluster/ngs/snakemake/bin/snakemake -d $DATA_PATH --configfile /blues/ngs/service/varinspector/snakemake/config.json -C \"target=$PREFIX\" -j $JOB_NUM --ri -k --cluster \"sbatch -p all -c{threads} -D $DATA_PATH -o $DATA_PATH/%x.out\"")
-        script.write("\n")
-  
-      rescue IOError => e 
-      ensure
-        script.close unless script.nil?
-      end
-      
+      @script_content  << "PREFIX='#{@analysis_name_prefix}'\n"
+      @script_content  << "DATA_PATH='#{@dir_str}'\n"
+      @script_content  << "JOB_NUM=2\n"
+      @script_content  << "\n"
 
+      @script_content  << "/cluster/ngs/snakemake/bin/snakemake -d $DATA_PATH --configfile /blues/ngs/service/varinspector/snakemake/config.json -C \"target=$PREFIX\" -j $JOB_NUM --ri -k --cluster \"sbatch -p all -c{threads} -D $DATA_PATH -o $DATA_PATH/%x.out\""
+      @script_content  << "\n"
     end
 
     def lanch_slurm_job(analysis)
@@ -93,9 +81,8 @@ class JobWorker
       config = {"adapter" => "slurm", "cluster" => "biocluster3", "conf" => "/etc/slurm", "bin" => "/usr/sbin"}
       @slurm_adptor = OodCore::Job::Factory.build_slurm(config)
 
-      #submit_script = "runService.sh " + @dir_str +" "+@analysis_name_prefix
-      #puts submit_script
-      slurm_id = @slurm_adptor.submit (@script_file)
+      @script = OodCore::Job::Script(@script_content, workdir: @dir_str, job_name: @job_name, input_path: @dir_str, output_path: @dir_str)
+      slurm_id = @slurm_adptor.submit (@script)
 
       analysis.job_id = slurm_id
       analysis.status = "submit"
