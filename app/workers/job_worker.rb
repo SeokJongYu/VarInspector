@@ -56,15 +56,43 @@ class JobWorker
     end
   
   
+    def create_script(analysis)
+      @script_file = @dir_str + '/run.sh'
+      @JOB_NUM = 2
+      begin
+        script = File.open(@script_file, "w")
+        script.write("#!/bin/sh\n")
+        script.write("\n")
+        script.write("#SBATCH -D /blues/ngs/service/varinspector/snakemake\n")
+        script.write("#SBATCH -o /blues/ngs/service/varinspector/snakemake/logs/%j.out\n")
+        script.write("#SBATCH -p all\n")
+        script.write("#SBATCH -c 1\n")
+        script.write("\n")
+
+        script.write("PREFIX='#{@analysis_name_prefix}'\n")
+        script.write("DATA_PATH='#{@dir_str}'\n")
+        script.write("JOB_NUM=2\n")
+        script.write("\n")
+
+        script.write("/cluster/ngs/snakemake/bin/snakemake -d $DATA_PATH --configfile /blues/ngs/service/varinspector/snakemake/config.json -C \"target=$PREFIX\" -j $JOB_NUM --ri -k --cluster \"sbatch -p all -c{threads} -D $DATA_PATH -o $DATA_PATH/%x.out\"")
+        script.write("\n")
   
+      rescue IOError => e 
+      ensure
+        script.close unless script.nil?
+      end
+      
+
+    end
+
     def lanch_slurm_job(analysis)
 
-      config = {"adapter" => "slurm", "cluster" => "biocluster4.kisti.re.kr", "conf" => "/etc/slurm", "bin" => "/usr/sbin"}
+      config = {"adapter" => "slurm", "cluster" => "biocluster3", "conf" => "/etc/slurm", "bin" => "/usr/sbin"}
       @slurm_adptor = OodCore::Job::Factory.build(config)
 
-      submit_script = "runService.sh " + @dir_str +" "+@analysis_name_prefix
-      puts submit_script
-      slurm_id = @slurm_adptor.submit (submit_script)
+      #submit_script = "runService.sh " + @dir_str +" "+@analysis_name_prefix
+      #puts submit_script
+      slurm_id = @slurm_adptor.submit (@script_file)
 
       analysis.job_id = slurm_id
       analysis.status = "submit"
