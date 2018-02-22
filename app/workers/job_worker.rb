@@ -3,13 +3,16 @@ class JobWorker
     require 'csv'
   
     def exec(analysis_id)
-      
+      put analysis_id
       analysis = Analysis.find(analysis_id)
       # make input file
       create_data(analysis)
 
       # create slurm controller and lanch
       lanch_slurm_job(analysis)
+      
+      create_script(anlysis)
+
       # monitoring analysis job and do post processing
       poll_job(analysis)
       post_processing(analysis)
