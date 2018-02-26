@@ -34,11 +34,12 @@ class AnalysesController < ApplicationController
 
 
     respond_to do |format|
+      @analysis.status = "Uploading"
+      
       if @analysis.save
-
         AnalyserJob.perform_later @analysis.id
         
-        format.html { redirect_to project_analysis_path(@project), notice: 'Analysis was successfully created.' }
+        format.html { redirect_to project_path(@project), notice: 'Analysis was successfully created.' }
         format.json { render :show, status: :created, location: @analysis }
       else
         format.html { render :new }

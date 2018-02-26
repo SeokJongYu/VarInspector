@@ -5,17 +5,18 @@
 <div class="clearfix"></div>
 
 <!-- menu profile quick info -->
-<div class="profile clearfix">
-  <div class="profile_pic">
-  <%= image_tag("codegen.jpg", :alt => "...", :class =>"img-circle profile_img") %>
+<% if user_signed_in? %>
+  <div class="profile clearfix">
+    <div class="profile_pic">
+    <%= image_tag("codegen.jpg", :alt => "...", :class =>"img-circle profile_img") %>
+    </div>
+    <div class="profile_info">
+      <span>Welcome,</span>
+      <h2><%= current_user.email %></h2>
+    </div>
   </div>
-  <div class="profile_info">
-    <span>Welcome,</span>
-    <h2>Seok Jong Yu</h2>
-  </div>
-</div>
 <!-- /menu profile quick info -->
-
+<% end %>
 <br />
 
 <!-- sidebar menu -->
