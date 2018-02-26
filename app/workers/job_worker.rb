@@ -3,15 +3,15 @@ class JobWorker
     require 'csv'
   
     def exec(analysis_id)
-      put analysis_id
+      puts analysis_id
       analysis = Analysis.find(analysis_id)
       # make input file
       create_data(analysis)
+      create_script(analysis)
 
       # create slurm controller and lanch
       lanch_slurm_job(analysis)
 
-      create_script(anlysis)
 
       # monitoring analysis job and do post processing
       poll_job(analysis)
@@ -64,7 +64,7 @@ class JobWorker
 
       @script_content  << "#SBATCH -D /blues/ngs/service/varinspector/snakemake\n"
       @script_content  << "#SBATCH -o /blues/ngs/service/varinspector/snakemake/logs/%j.out\n"
-      @script_content  << "#SBATCH -p all\n"
+      @script_content  << "#SBATCH -p debug\n"
       @script_content  << "#SBATCH -c 1\n\n"
 
       @script_content  << "PREFIX='#{@analysis_name_prefix}'\n"
@@ -72,16 +72,17 @@ class JobWorker
       @script_content  << "JOB_NUM=2\n"
       @script_content  << "\n"
 
-      @script_content  << "/cluster/ngs/snakemake/bin/snakemake -d $DATA_PATH --configfile /blues/ngs/service/varinspector/snakemake/config.json -C \"target=$PREFIX\" -j $JOB_NUM --ri -k --cluster \"sbatch -p all -c{threads} -D $DATA_PATH -o $DATA_PATH/%x.out\""
+      @script_content  << "/cluster/ngs/snakemake/bin/snakemake -d $DATA_PATH --configfile /blues/ngs/service/varinspector/snakemake/config.json -C \"target=$PREFIX\" -j $JOB_NUM --ri -k --cluster \"sbatch -p debug -c{threads} -D $DATA_PATH -o $DATA_PATH/%x.out\""
       @script_content  << "\n"
     end
 
     def lanch_slurm_job(analysis)
 
-      config = {"adapter" => "slurm", "cluster" => "biocluster3", "conf" => "/etc/slurm", "bin" => "/usr/sbin"}
-      @slurm_adptor = OodCore::Job::Factory.build_slurm(config)
-
-      @script = OodCore::Job::Script(@script_content, workdir: @dir_str, job_name: @job_name, input_path: @dir_str, output_path: @dir_str)
+      config = {"adapter" => "slurm", "cluster" => "biocluster", "conf" => "/etc/slurm/slurm.conf", "bin" => "/usr/bin"}
+      @slurm_adptor = OodCore::Job::Factory.build(config)
+      
+      @script = OodCore::Job::Script.new(:content => @script_content, :job_name => @job_name)
+	puts @script.to_h
       slurm_id = @slurm_adptor.submit (@script)
 
       analysis.job_id = slurm_id
@@ -99,17 +100,20 @@ class JobWorker
         @stat = @slurm_adptor.status(job_id)
         puts @stat.to_yaml
         puts job_id
-        @stat.each_key {|key| puts key }
-        val = @stat[job_id]
-        stat_str = val[:job_state]
-        if stat_str == "Q" 
+        
+        if @stat.queued?  
           stat_server = "Queue"
-        elsif stat_str == "R"
+        elsif @stat.queued_held?
+          stat_server = "Queued held"
+	elsif @stat.suspended?
+          stat_server = "Suspended"
+	elsif @stat.running?
           stat_server = "Running"
-        elsif stat_str == "C"
+        elsif @stat.completed?
           stat_server = "Done"
         end
-  
+  	puts stat_server
+
         if stat_server != status
           analysis.status = stat_server
           analysis.save
