@@ -3,7 +3,7 @@ class JobWorker
     require 'csv'
   
     def exec(analysis_id)
-      put analysis_id
+      puts analysis_id
       analysis = Analysis.find(analysis_id)
       # make input file
       create_data(analysis)
@@ -79,7 +79,7 @@ class JobWorker
     def lanch_slurm_job(analysis)
 
       config = {"adapter" => "slurm", "cluster" => "biocluster3", "conf" => "/etc/slurm", "bin" => "/usr/sbin"}
-      @slurm_adptor = OodCore::Job::Factory.build_slurm(config)
+      @slurm_adptor = OodCore::Job::Factory.build(config)
 
       @script = OodCore::Job::Script(@script_content, workdir: @dir_str, job_name: @job_name, input_path: @dir_str, output_path: @dir_str)
       slurm_id = @slurm_adptor.submit (@script)
