@@ -5,16 +5,16 @@ class JobWorker
     def exec(analysis_id)
       puts analysis_id
       analysis = Analysis.find(analysis_id)
-      # make input file
-      create_data(analysis)
-      create_script(analysis)
+      # - make input file
+      #create_data(analysis)
+      #create_script(analysis)
 
-      # create slurm controller and lanch
-      lanch_slurm_job(analysis)
+      # - create slurm controller and lanch
+      #lanch_slurm_job(analysis)
 
 
-      # monitoring analysis job and do post processing
-      poll_job(analysis)
+      # -monitoring analysis job and do post processing
+      #poll_job(analysis)
       post_processing(analysis)
   
     end
@@ -82,7 +82,7 @@ class JobWorker
       @slurm_adptor = OodCore::Job::Factory.build(config)
       
       @script = OodCore::Job::Script.new(:content => @script_content, :job_name => @job_name)
-	puts @script.to_h
+	    puts @script.to_h
       slurm_id = @slurm_adptor.submit (@script)
 
       analysis.job_id = slurm_id
@@ -123,13 +123,38 @@ class JobWorker
     end
   
     def post_processing(analysis)
+      @analysis_name_prefix = "FCD105"
+      # @mutect_high_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".mutect.HIGH.txt"
+      # @mutect_moderate_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".mutect.MODERATE.txt"
+      # @strelka_high_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".strelka.HIGH.txt"
+      # @strelka_moderate_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".strelka.MODERATE.txt"
+
+      @mutect_high_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".mutect.HIGH.txt"
+      @mutect_moderate_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".mutect.MODERATE.txt"
+      @strelka_high_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".strelka.HIGH.txt"
+      @strelka_moderate_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".strelka.MODERATE.txt"
+      puts @mutect_high_file
+      processing_detail(@mutect_high_file, "mutect", analysis)
+      puts @mutect_moderate_file
+      processing_detail(@mutect_moderate_file, "mutect", analysis)
+      puts @strelka_high_file
+      processing_detail(@strelka_high_file, "strelka", analysis)
+      puts @strelka_moderate_file
+      processing_detail(@strelka_moderate_file, "strelka", analysis)
+
+      analysis.status = "Finish"
+      analysis.save
+
+    end
+
+    def processing_detail(data, tool_str, analysis)
       # create Result
-      @output_file = analysis.result_dir + "/*.vcf"
-      csv_text = File.read(@output_file)
-      csv = CSV.parse(csv_text, :col_sep =>"\t", :headers => true, :converters => lambda { |s| s.tr("[*].","_") })
+      csv_text = File.read(data)
+      csv = CSV.parse(csv_text, :col_sep =>"\t", :headers => true)
       csv.each do |row|
         puts row.to_hash
         result = Result.create(row.to_hash)
+        result.tool = tool_str
         result.analysis = analysis
         result.save
       end
