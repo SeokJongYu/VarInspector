@@ -1,9 +1,10 @@
 class CreateResults < ActiveRecord::Migration[5.1]
   def change
     create_table :results do |t|
+      t.string :tool
       t.string :CHROM
       t.integer :POS
-      t.string :VCF_ID
+      t.string :VAR_ID
       t.string :REF
       t.string :ALT
       t.string :FORMAT
