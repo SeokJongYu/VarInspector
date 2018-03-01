@@ -51,9 +51,10 @@ ActiveRecord::Schema.define(version: 20180226024524) do
   end
 
   create_table "results", force: :cascade do |t|
+    t.string "tool"
     t.string "CHROM"
     t.integer "POS"
-    t.string "VCF_ID"
+    t.string "VAR_ID"
     t.string "REF"
     t.string "ALT"
     t.string "FORMAT"
