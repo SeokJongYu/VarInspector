@@ -49,9 +49,10 @@
         <table id="datatable" class="table table-striped table-bordered">
             <thead>
             <tr>
+                <th>Tool</th>
                 <th>CHROM</th>
                 <th>POS</th>
-                <th>VCF_ID</th>
+                <th>VAR_ID</th>
                 <th>REF</th>
                 <th>ALT</th>
                 <th>FORMAT</th>
@@ -95,9 +96,10 @@
 
             <% @results.each do |result| %>
                 <tr>
+                    <td><%= result.tool %></td>
                     <td><%= result.CHROM %></td>
                     <td><%= result.POS %></td>
-                    <td><%= result.VCF_ID %></td>
+                    <td><%= result.VAR_ID %></td>
                     <td><%= result.REF %></td>
                     <td><%= result.ALT %></td>
                     <td><%= result.FORMAT %></td>
