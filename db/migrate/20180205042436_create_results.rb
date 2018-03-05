@@ -9,12 +9,12 @@ class CreateResults < ActiveRecord::Migration[5.1]
       t.string :ALT
       t.string :FORMAT
       t.decimal :EB
-      t.integer :GEN_DP
-      t.integer :GEN_AU
-      t.integer :GEN_CU
-      t.integer :GEN_GU
-      t.integer :GEN_TU
-      t.integer :GEN_AD
+      t.string :GEN_DP
+      t.string :GEN_AU
+      t.string :GEN_CU
+      t.string :GEN_GU
+      t.string :GEN_TU
+      t.string :GEN_AD
       t.string :ANN_IMPACT
       t.string :ANN_GENE
       t.string :ANN_EFFECT
