@@ -54,7 +54,7 @@ ActiveRecord::Schema.define(version: 20180226024524) do
     t.string "tool"
     t.string "CHROM"
     t.integer "POS"
-    t.string "VAR_ID"
+    t.string "RS_ID"
     t.string "REF"
     t.string "ALT"
     t.string "FORMAT"
