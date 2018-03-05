@@ -123,24 +123,25 @@ class JobWorker
     end
   
     def post_processing(analysis)
-      @analysis_name_prefix = "FCD105"
+      @analysis_name_prefix = "PMG353"
       # @mutect_high_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".mutect.HIGH.txt"
       # @mutect_moderate_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".mutect.MODERATE.txt"
       # @strelka_high_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".strelka.HIGH.txt"
       # @strelka_moderate_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".strelka.MODERATE.txt"
 
-      @mutect_high_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".mutect.HIGH.txt"
-      @mutect_moderate_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".mutect.MODERATE.txt"
-      @strelka_high_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".strelka.HIGH.txt"
-      @strelka_moderate_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".strelka.MODERATE.txt"
-      puts @mutect_high_file
-      processing_detail(@mutect_high_file, "mutect", analysis)
-      puts @mutect_moderate_file
-      processing_detail(@mutect_moderate_file, "mutect", analysis)
-      puts @strelka_high_file
-      processing_detail(@strelka_high_file, "strelka", analysis)
-      puts @strelka_moderate_file
-      processing_detail(@strelka_moderate_file, "strelka", analysis)
+      @mutect_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".mutect.txt"
+      @strelka_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".strelka.txt"
+      @gatk_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".gatk_hc.txt"
+      @lofreq_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".Lofreq.txt"
+
+      puts @mutect_file
+      processing_detail(@mutect_file, "mutect", analysis)
+      puts @gatk_file
+      processing_detail(@gatk_file, "gatk_hc", analysis)
+      puts @strelka_file
+      processing_detail(@strelka_file, "strelka", analysis)
+      puts @lofreq_file
+      processing_detail(@lofreq_file, "Lofreq", analysis)
 
       analysis.status = "Finish"
       analysis.save

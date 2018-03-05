@@ -4,7 +4,7 @@ class CreateResults < ActiveRecord::Migration[5.1]
       t.string :tool
       t.string :CHROM
       t.integer :POS
-      t.string :VAR_ID
+      t.string :RS_ID
       t.string :REF
       t.string :ALT
       t.string :FORMAT
