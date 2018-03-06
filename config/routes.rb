@@ -3,7 +3,7 @@ Rails.application.routes.draw do
 
   devise_for :users
   get 'result/show'
-
+  get 'result/report'
   get 'result/plot'
 
   resources :projects do

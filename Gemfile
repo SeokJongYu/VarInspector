@@ -41,6 +41,8 @@ gem 'ood_core'
 gem "shrine"
 gem 'sidekiq'
 gem 'devise', '~> 4.4', '>= 4.4.1'
+gem 'prawn', '~> 2.2', '>= 2.2.2'
+gem 'prawn-table'
 
 gem 'friendly_id', '~> 5.1.0' # Note: You MUST use 5.0.0 or greater for Rails 4.0+
 
