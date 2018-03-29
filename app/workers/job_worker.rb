@@ -1,7 +1,5 @@
 class JobWorker
-    require 'fileutils'
-    require 'csv'
-  
+
     def exec(analysis_id)
       puts analysis_id
       analysis = Analysis.find(analysis_id)
