@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<?mso-application progid="Excel.Sheet"?> 
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"  
+xmlns:x="urn:schemas-microsoft-com:office:excel"  
+xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"  
+xmlns:html="http://www.w3.org/TR/REC-html40"> 
+<Worksheet ss:Name="Sheet1"> 
+<Table> 
+<Column ss:Index="1" ss:AutoFitWidth="0" ss:Width="110"/> 
+<Row> 
+    <Cell><Data ss:Type="String">Tool</Data></Cell> 
+    <Cell><Data ss:Type="String">CHROM</Data></Cell> 
+    <Cell><Data ss:Type="String">POS</Data></Cell> 
+    <Cell><Data ss:Type="String">RS_ID</Data></Cell> 
+    <Cell><Data ss:Type="String">REF</Data></Cell> 
+    <Cell><Data ss:Type="String">ALT</Data></Cell> 
+    <Cell><Data ss:Type="String">FORMAT</Data></Cell> 
+    <Cell><Data ss:Type="String">EB</Data></Cell> 
+    <Cell><Data ss:Type="String">GEN_DP</Data></Cell> 
+    <Cell><Data ss:Type="String">GEN_AU</Data></Cell> 
+    <Cell><Data ss:Type="String">GEN_CU</Data></Cell> 
+    <Cell><Data ss:Type="String">GEN_GU</Data></Cell> 
+    <Cell><Data ss:Type="String">GEN_TU</Data></Cell> 
+    <Cell><Data ss:Type="String">GEN_AD</Data></Cell> 
+    <Cell><Data ss:Type="String">ANN_IMPACT</Data></Cell> 
+    <Cell><Data ss:Type="String">ANN_GENE</Data></Cell> 
+    <Cell><Data ss:Type="String">ANN_EFFECT</Data></Cell> 
+    <Cell><Data ss:Type="String">ANN_HGVS_C</Data></Cell> 
+    <Cell><Data ss:Type="String">ANN_HGVS_P</Data></Cell> 
+    <Cell><Data ss:Type="String">dbNSFP_SIFT_pred</Data></Cell> 
+    <Cell><Data ss:Type="String">dbNSFP_Polyphen2_HDIV_pred</Data></Cell> 
+    <Cell><Data ss:Type="String">dbNSFP_Polyphen2_HVAR_pred</Data></Cell> 
+    <Cell><Data ss:Type="String">dbNSFP_MutationTaster_pred</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_GERP_NR</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_GERP_RS</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_phastCons100way_vertebrate</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_CADD_phred</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_AC</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_AF</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_Adj_AC</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_Adj_AF</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_EAS_AC</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_EAS_AF</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_SAS_AC</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_SAS_AF</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_AFR_AC</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_AFR_AF</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_AMR_AC</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_AMR_AF</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_NFE_AC</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_NFE_AF</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_FIN_AC</Data></Cell>
+    <Cell><Data ss:Type="String">dbNSFP_ExAC_FIN_AF</Data></Cell>
+</Row> 
+<% @results.each do |result| %> 
+<Row> 
+    <Cell><Data ss:Type="String"><%= result.tool %></Data></Cell> 
+    <Cell><Data ss:Type="Number"><%= result.CHROM %></Data></Cell> 
+    <Cell><Data ss:Type="Number"><%= result.POS %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.RS_ID %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.REF %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.ALT %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.FORMAT %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.EB %></Data></Cell>  
+    <Cell><Data ss:Type="String"><%= result.GEN_DP %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.GEN_AU %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.GEN_CU %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.GEN_GU %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.GEN_TU %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.GEN_DP %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.GEN_AD %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.ANN_IMPACT %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.ANN_GENE %></Data></Cell>   
+    <Cell><Data ss:Type="String"><%= result.ANN_EFFECT %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.ANN_HGVS_C %></Data></Cell>  
+    <Cell><Data ss:Type="String"><%= result.ANN_HGVS_P %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_SIFT_pred %></Data></Cell>    
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_Polyphen2_HDIV_pred %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_Polyphen2_HVAR_pred %></Data></Cell>   
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_MutationTaster_pred %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_GERP_NR %></Data></Cell>  
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_GERP_RS %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_phastCons100way_vertebrate %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_CADD_phred %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_AC %></Data></Cell>   
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_AF %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_Adj_AC %></Data></Cell>  
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_Adj_AF %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_EAS_AC %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_EAS_AF %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_SAS_AC %></Data></Cell>   
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_SAS_AF %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_AFR_AC %></Data></Cell>  
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_AFR_AF %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_AMR_AC %></Data></Cell>        
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_AMR_AF %></Data></Cell>   
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_NFE_AC %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_NFE_AF %></Data></Cell>  
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_FIN_AC %></Data></Cell> 
+    <Cell><Data ss:Type="String"><%= result.dbNSFP_ExAC_FIN_AF %></Data></Cell>       
+</Row> 
+<% end %> 
+</Table> 
+</Worksheet> 
+</Workbook>

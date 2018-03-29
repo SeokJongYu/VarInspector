@@ -3,6 +3,10 @@ class ResultController < ApplicationController
     @results = Result.where("analysis_id =?", params[:analysis_id])
     @analysis = Analysis.find(params[:analysis_id])
     
+    respond_to do |format| 
+      format.html 
+      format.xls
+    end 
   end
 
   def plot
