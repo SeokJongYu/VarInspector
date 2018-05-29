@@ -1,18 +1,18 @@
 class JobWorker
 
     def exec(analysis_id)
-      puts analysis_id
+      #puts analysis_id
       analysis = Analysis.find(analysis_id)
       # - make input file
-      #create_data(analysis)
-      #create_script(analysis)
+      create_data(analysis)
+      create_script(analysis)
 
       # - create slurm controller and lanch
-      #lanch_slurm_job(analysis)
+      lanch_slurm_job(analysis)
 
 
       # -monitoring analysis job and do post processing
-      #poll_job(analysis)
+      poll_job(analysis)
       post_processing(analysis)
   
     end
@@ -121,16 +121,16 @@ class JobWorker
     end
   
     def post_processing(analysis)
-      @analysis_name_prefix = "PMG353"
-      # @mutect_high_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".mutect.HIGH.txt"
-      # @mutect_moderate_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".mutect.MODERATE.txt"
-      # @strelka_high_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".strelka.HIGH.txt"
-      # @strelka_moderate_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".strelka.MODERATE.txt"
+      #@analysis_name_prefix = "PMG353"
+       @mutect_high_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".mutect.HIGH.txt"
+       @mutect_moderate_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".mutect.MODERATE.txt"
+       @strelka_high_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".strelka.HIGH.txt"
+       @strelka_moderate_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".strelka.MODERATE.txt"
 
-      @mutect_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".mutect.txt"
-      @strelka_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".strelka.txt"
-      @gatk_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".gatk_hc.txt"
-      @lofreq_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".Lofreq.txt"
+      #@mutect_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".mutect.txt"
+      #@strelka_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".strelka.txt"
+      #@gatk_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".gatk_hc.txt"
+      #@lofreq_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".Lofreq.txt"
 
       puts @mutect_file
       processing_detail(@mutect_file, "mutect", analysis)
