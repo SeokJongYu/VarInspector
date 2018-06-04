@@ -121,25 +121,30 @@ class JobWorker
     end
   
     def post_processing(analysis)
-      #@analysis_name_prefix = "PMG353"
-       @mutect_high_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".mutect.HIGH.txt"
-       @mutect_moderate_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".mutect.MODERATE.txt"
-       @strelka_high_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".strelka.HIGH.txt"
-       @strelka_moderate_file = analysis.result_dir + "/"+ @analysis_name_prefix + ".strelka.MODERATE.txt"
+	analysis.status="Post Processing"
+	analysis.save
 
-      #@mutect_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".mutect.txt"
-      #@strelka_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".strelka.txt"
-      #@gatk_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".gatk_hc.txt"
-      #@lofreq_file = "/Users/seokjongyu/Dev/KAIST/data/"+ @analysis_name_prefix + ".Lofreq.txt"
+       @mutect_file = analysis.result_dir + "/output/"+ @analysis_name_prefix + ".mutect.txt"
+       @strelka_file = analysis.result_dir + "/output/"+ @analysis_name_prefix + ".strelka.txt"
+       @gatk_file = analysis.result_dir + "/output/"+ @analysis_name_prefix + ".gatk_hc.txt"
+       @lofreq_file = analysis.result_dir + "/output/"+ @analysis_name_prefix + ".Lofreq.txt"
 
       puts @mutect_file
-      processing_detail(@mutect_file, "mutect", analysis)
+      if File.exist?(@mutect_file) then
+         processing_detail(@mutect_file, "mutect", analysis)
+      end
       puts @gatk_file
-      processing_detail(@gatk_file, "gatk_hc", analysis)
+      if File.exist?(@gatk_file) then
+        processing_detail(@gatk_file, "gatk_hc", analysis)
+      end
       puts @strelka_file
-      processing_detail(@strelka_file, "strelka", analysis)
+      if File.exist?(@strelka_file) then
+        processing_detail(@strelka_file, "strelka", analysis)
+      end
       puts @lofreq_file
-      processing_detail(@lofreq_file, "Lofreq", analysis)
+      if File.exist?(@lofreq_file) then
+        processing_detail(@lofreq_file, "Lofreq", analysis)
+      end
 
       analysis.status = "Finish"
       analysis.save
